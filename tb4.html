@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Bakat</title>
+    <link rel="icon" href="https://bimbelsyf.com/wp-content/uploads/2025/05/cropped-favicon-192x192.jpeg" sizes="192x192" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .btn-danger {
+             background-color: #dc2626;
+             color: white;
+        }
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+        #stage-transition-screen .card {
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-4xl mx-auto">
+
+        <div id="welcome-screen" class="card text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Selamat datang...</h1>
+            <p class="text-gray-600 mb-6">Untuk memastikan kau mendapat peran yang paling sesuai, kami perlu mengenalmu lebih baik.
+</p>
+             <p class="text-gray-600 mb-8">Kami akan menunjukkan sejumlah deskripsi pekerjaan. Pilihlah 5 hingga 7 deskripsi pekerjaan yang paling cocok dengan dirimu. Jawablah dengan jujur. Jawabanmu akan menentukan posisi dan tanggung jawabmu ke depan.</p>
+            <button id="start-btn" class="btn btn-primary w-full sm:w-auto">Start Test</button>
+        </div>
+
+        <div id="stage-transition-screen" class="hidden flex items-center justify-center min-h-screen p-4">
+             <div class="card">
+                <h2 id="transition-title" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+                <p id="transition-text" class="text-gray-600 mb-6 whitespace-pre-line"></p>
+                <button id="continue-btn" class="btn btn-primary w-full sm:w-auto">Continue</button>
+            </div>
+        </div>
+
+
+        <div id="question-screen" class="hidden">
+            <div class="card">
+                <div class="mb-6">
+                    <p id="stage-info" class="text-sm font-semibold text-indigo-600 mb-2"></p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-xs text-gray-500 text-right mt-1"></p>
+                </div>
+
+                <div class="text-center bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h2 id="job-title" class="text-2xl font-bold text-gray-800 mb-3"></h2>
+                    <p id="job-description" class="text-gray-700 text-lg min-h-[6rem] flex items-center justify-center"></p>
+                </div>
+
+                <div id="main-actions" class="flex flex-col sm:flex-row gap-4 mt-8">
+                    <button id="select-btn" class="btn btn-primary flex-1">I really want this!</button>
+                    <button id="skip-btn" class="btn btn-secondary flex-1">Skip</button>
+                </div>
+                 <div id="hate-actions" class="flex flex-col sm:flex-row gap-4 mt-8 hidden">
+                    <button id="hate-btn" class="btn btn-danger flex-1">I hate this!</button>
+                    <button id="skip-hate-btn" class="btn btn-secondary flex-1">Skip</button>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-center">
+                <button id="finish-stage-btn" class="btn btn-primary hidden">End This Stage</button>
+            </div>
+        </div>
+
+        <div id="results-screen" class="hidden">
+             <div class="card">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Hasil Tes</h1>
+                <div class="space-y-8">
+                    <div id="results-stage1"></div>
+                    <div id="results-stage3"></div>
+                    <div id="results-stage4"></div>
+                    <div id="results-stage2"></div>
+                    <div id="results-unpicked"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="modal-screen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg p-8 shadow-xl text-center max-w-sm w-full">
+                <p id="modal-text" class="text-lg text-gray-700 mb-6"></p>
+                <button id="modal-close-btn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const jobData = {
+          "Administrator": ["Bertindak sebagai penghubung antara organisasi dan masyarakat luas.", "Mewakili kepentingan institusi dalam berbagai forum.", "Menjadi wajah resmi dari suatu lembaga.", "Menjalankan fungsi koordinatif antar bagian dalam organisasi."],
+          "Ambassador": ["Mengelola citra organisasi agar tetap positif di mata publik.", "Menjembatani hubungan organisasi dengan pihak luar.", "Menyampaikan misi dan nilai organisasi secara profesional.", "Menjadi duta yang mempromosikan tujuan lembaga."],
+          "Analyst": ["Menyukai riset dan penyelidikan data secara mendalam.", "Memahami pola dan tren untuk pengambilan keputusan.", "Menyediakan rekomendasi berdasarkan kajian fakta.", "Menganalisis situasi kompleks menjadi bagian yang bisa dipahami."],
+          "Arranger": ["Menata kegiatan dan sumber daya agar berjalan efisien.", "Menyusun rencana kerja dengan struktur yang sistematis.", "Mengkoordinasikan tim atau proyek dengan baik.", "Mengatur elemen yang beragam menjadi satu kesatuan."],
+          "Caretaker": ["Memberikan dukungan emosional dan fisik bagi orang lain.", "Menjaga kesejahteraan orang-orang di sekitarnya.", "Menyediakan perhatian dan bantuan secara konsisten.", "Merawat lingkungan atau individu dengan empati tinggi."],
+          "Commander": ["Mengambil alih kendali saat situasi tidak menentu.", "Memberi arahan yang tegas dan jelas.", "Memimpin dengan keberanian dan ketegasan.", "Mengorganisir strategi untuk menyelesaikan tantangan."],
+          "Communicator": ["Mengungkapkan ide dengan jelas dan efektif.", "Mampu menyesuaikan pesan untuk berbagai audiens.", "Membangun koneksi melalui komunikasi yang terbuka.", "Menyampaikan informasi dengan gaya yang menarik."],
+          "Creator": ["Menciptakan karya orisinal dari ide-ide mentah.", "Selalu ingin berinovasi dalam berbagai bidang.", "Menghasilkan solusi kreatif dari masalah yang ada.", "Terlibat dalam proses penciptaan dari nol."],
+          "Designer": ["Merancang konsep visual dan teknis dari sebuah ide.", "Menggabungkan estetika dan fungsi dalam suatu rancangan.", "Mewujudkan ide menjadi sketsa atau model nyata.", "Mengembangkan solusi desain untuk kebutuhan tertentu."],
+          "Distributor": ["Mengatur alur distribusi barang secara efisien.", "Memastikan produk sampai ke tangan penerima yang tepat.", "Mengelola logistik dan jalur pengiriman.", "Menyediakan barang dalam jumlah dan waktu yang sesuai."],
+          "Educator": ["Menyusun kurikulum dan metode pengajaran.", "Mentransfer pengetahuan dengan pendekatan inspiratif.", "Membimbing peserta didik menuju pemahaman yang lebih baik.", "Menjadi fasilitator dalam proses pembelajaran."],
+          "Evaluator": ["Menilai kinerja atau hasil untuk peningkatan mutu.", "Mengolah data untuk menentukan kualitas suatu hal.", "Memberikan umpan balik (kritik, saran, masukan) berbasis bukti nyata.", "Melakukan audit terhadap proses dan hasil kerja."],
+          "Explorer": ["Mencari jawaban lewat penyelidikan mendalam.", "Menjelajahi ide atau wilayah baru dengan semangat ingin tahu.", "Menyelidiki fenomena untuk menemukan kebenaran tersembunyi.", "Menggali informasi yang belum banyak diketahui."],
+          "Interpreter": ["Mengubah informasi dari satu bahasa ke bahasa lain.", "Menafsirkan makna tersembunyi dalam suatu pernyataan.", "Mengkomunikasikan pesan budaya lintas bahasa.", "Menjadi jembatan komunikasi antar komunitas."],
+          "Journalist": ["Melaporkan peristiwa aktual kepada masyarakat.", "Menulis berita dengan gaya yang objektif dan faktual.", "Menyusun narasi berdasarkan kejadian nyata.", "Menyediakan informasi yang kredibel dan dapat dipercaya."],
+          "Marketer": ["Merancang strategi penjualan yang menarik.", "Membaca pasar dan kebutuhan konsumen.", "Menyusun kampanye untuk meningkatkan minat beli.", "Mempromosikan produk dengan pendekatan persuasif."],
+          "Mediator": ["Menjadi penengah dalam konflik antar pihak.", "Memfasilitasi dialog untuk mencapai kesepakatan.", "Menawarkan solusi adil yang diterima semua pihak.", "Membangun jembatan komunikasi yang sehat."],
+          "Motivator": ["Memberikan dorongan positif kepada individu atau tim.", "Menginspirasi orang untuk mencapai potensi terbaiknya.", "Menyalakan semangat kerja dan dedikasi.", "Membuat orang percaya pada kemampuan mereka sendiri."],
+          "Operator": ["Menjalankan peralatan teknis secara aman dan efisien.", "Memastikan mesin bekerja sesuai prosedur.", "Mengontrol sistem untuk menjaga kelancaran operasi.", "Menangani alat dan instrumen dengan keterampilan teknis."],
+          "Producer": ["Mengatur proses produksi dari awal hingga akhir.", "Bertanggung jawab atas hasil akhir sebuah produk.", "Memastikan output sesuai standar dan target.", "Mengelola sumber daya dalam proses pembuatan barang."],
+          "Quality Controller": ["Memeriksa produk agar sesuai standar mutu.", "Mengidentifikasi dan memperbaiki cacat produksi.", "Melakukan audit kualitas secara berkala.", "Menjaga konsistensi produk yang dihasilkan."],
+          "Restorer": ["Memperbaiki barang agar kembali ke bentuk semula.", "Mengembalikan kondisi ideal suatu objek atau sistem.", "Merestorasi elemen yang rusak agar berfungsi kembali.", "Menjaga nilai historis atau estetika lewat pemulihan."],
+          "Safekeeper": ["Menjaga barang berharga dari pencurian atau kerusakan.", "Melindungi aset organisasi dengan sistem keamanan.", "Bertanggung jawab atas keselamatan lingkungan kerja.", "Menjamin keamanan fisik dan data."],
+          "Seller": ["Mengarahkan pembeli dengan teknik penjualan yang cerdas.", "Memahami kebutuhan konsumen untuk menawarkan solusi.", "Meyakinkan pelanggan melalui pendekatan yang persuasif.", "Membangun hubungan baik demi penjualan berkelanjutan."],
+          "Server": ["Memberikan pelayanan dengan penuh keramahtamahan.", "Menyediakan bantuan kepada orang lain dengan tulus.", "Mengutamakan kenyamanan pengguna atau pelanggan.", "Bertindak sebagai pelayan yang sigap dan responsif."],
+          "Selector": ["Memilih kandidat terbaik untuk suatu posisi.", "Memilih beberapa alternatif pilihan berdasarkan kriteria utama yang ditetapkan.", "Menyeleksi sumber daya untuk efektivitas organisasi.", "Membuat keputusan berdasarkan pertimbangan matang."],
+          "Strategist": ["Menyusun rencana jangka panjang berdasarkan visi.", "Mengatur langkah-langkah untuk mencapai tujuan besar.", "Mengantisipasi tantangan masa depan dengan strategi.", "Mengembangkan arah kebijakan berdasarkan analisis."],
+          "Synthesizer": ["Menggabungkan ide dari berbagai sumber jadi satu konsep.", "Menyatukan informasi berbeda menjadi narasi utuh.", "Merangkai elemen yang kompleks menjadi sederhana.", "Membentuk solusi baru dari berbagai pendekatan."],
+          "Treasurer": ["Mengelola keuangan dengan akurat dan efisien.", "Bertanggung jawab atas pencatatan dan pelaporan dana.", "Menyusun anggaran serta memantau pengeluaran.", "Menjaga kestabilan keuangan dalam organisasi."],
+          "Visionary": ["Melihat kemungkinan masa depan yang belum terpikirkan.", "Membayangkan arah baru untuk organisasi atau ide.", "Berpikir jauh melampaui tren saat ini.", "Merancang masa depan berdasarkan intuisi dan analisis."]
+        };
+        
+        // --- NEW: DETAILED JOB PROFILE DATA ---
+        const jobDetailsData = { "Administrator": { "deskripsi": "Peran yang berfokus pada pekerjaan yang terstruktur, terencana, dan rapi. Bertanggung jawab atas entri data, pengarsipan, dan memastikan prosedur dijalankan. Mereka teliti, bertanggung jawab, dan unggul dalam menciptakan keteraturan.", "profesi_yang_cocok": [ "Sekretaris", "Notaris", "Pustakawan" ], "perilaku": "Cenderung sistematis, patuh aturan, menyukai rutinitas dan dokumentasi; sering mengambil alih tugas administratif dan menjaga keteraturan tim." }, "Ambassador": { "deskripsi": "Peran representatif yang membangun dan menjaga hubungan dengan klien dan publik. Bertanggung jawab, komunikatif, dan senang membantu.", "profesi_yang_cocok": [ "Diplomat", "Humas perusahaan", "Duta merek" ], "perilaku": "Ramah, suka menjembatani komunikasi antaranggota, menjaga suasana harmonis dan relasi eksternal kelompok." }, "Analyst": { "deskripsi": "Peran berbasis data, berfokus pada kalkulasi, analisis data, dan logika. Skeptis terhadap intuisi tanpa bukti.", "profesi_yang_cocok": [ "Akuntan", "Insinyur", "Programmer" ], "perilaku": "Rasional, mempertanyakan asumsi, berpegang pada fakta, suka menyelidiki dan mengurai masalah secara logis." }, "Arranger": { "deskripsi": "Peran kepemimpinan yang mengatur orang dan sumber daya untuk menyelesaikan tugas. Unggul dalam delegasi dan perencanaan.", "profesi_yang_cocok": [ "Manajer proyek", "Direktur acara", "Event organizer" ], "perilaku": "Mengambil peran pemimpin, menyusun rencana kerja, menjaga agar semua anggota bergerak sesuai tujuan." }, "Caretaker": { "deskripsi": "Peran suportif yang peduli terhadap kesejahteraan fisik, mental, atau medis orang lain. Penuh empati dan suka membantu.", "profesi_yang_cocok": [ "Perawat", "Dokter", "Pekerja sosial" ], "perilaku": "Suka mendengarkan dan membantu yang kesulitan, peka terhadap perasaan orang lain, menjadi 'penjaga hati' kelompok." }, "Commander": { "deskripsi": "Pemimpin tegas yang mengatur dan mengawasi dengan kejelasan. Berani mengambil tanggung jawab dan menghadapi konflik.", "profesi_yang_cocok": [ "Pengacara", "Mediator", "Manajer penjualan" ], "perilaku": "Tegas, langsung, tidak ragu memberi arahan atau kritik, menjadi penggerak yang memimpin dengan percaya diri." }, "Communicator": { "deskripsi": "Peran yang menyampaikan informasi dengan cara menarik dan mudah dipahami.", "profesi_yang_cocok": [ "Presenter", "Spesialis PR", "Guru" ], "perilaku": "Pandai berbicara, menyederhanakan informasi, menjadi juru bicara alami dalam diskusi kelompok." }, "Creator": { "deskripsi": "Peran inovatif yang menggunakan imajinasi untuk mengembangkan desain, produk, atau layanan baru.", "profesi_yang_cocok": [ "Arsitek", "Pemasar kreatif", "Pengembang bisnis" ], "perilaku": "Imajinatif, spontan, suka berpikir ‘di luar kotak’, sering memunculkan ide-ide segar dan orisinal." }, "Designer": { "deskripsi": "Perpaduan antara logika dan kreativitas dalam menciptakan karya visual atau ilustratif.", "profesi_yang_cocok": [ "Drafter", "Arsitek", "Desainer produk" ], "perilaku": "Detail, terstruktur, visual, senang merancang dan memperindah sesuatu dengan pendekatan artistik-logis." }, "Distributor": { "deskripsi": "Peran logistik yang memastikan barang dan informasi tersampaikan secara efisien.", "profesi_yang_cocok": [ "Kurir", "Manajer rantai pasok" ], "perilaku": "Praktis, efisien, berorientasi proses, selalu mencari cara untuk mempercepat dan menyederhanakan alur kerja." }, "Educator": { "deskripsi": "Peran yang berpusat pada mengajar, membimbing, dan melatih orang lain. Memiliki hasrat untuk membantu orang berkembang dan sukses.", "profesi_yang_cocok": [ "Guru", "Manajer", "Pelatih" ], "perilaku": "Sabar, membangun, suka berbagi pengetahuan dan memberi arahan, sering menjadi mentor dalam kelompok." }, "Evaluator": { "deskripsi": "Peran analitis yang mengumpulkan informasi untuk menilai nilai, kualitas, atau pentingnya sesuatu.", "profesi_yang_cocok": [ "Auditor", "Penilai", "Pemeriksa mutu" ], "perilaku": "Teliti, detail, objektif; suka mengecek ulang informasi dan menilai keakuratan sesuatu dengan cermat." }, "Explorer": { "deskripsi": "Peran berbasis riset yang melakukan penyelidikan metodis untuk menemukan fakta dan membangun teori.", "profesi_yang_cocok": [ "Peneliti", "Ilmuwan", "Surveyor" ], "perilaku": "Ingin tahu, analitis, suka menggali lebih dalam; menjelajahi informasi baru dan topik yang kompleks." }, "Interpreter": { "deskripsi": "Peran yang menerjemahkan makna dari satu bentuk ke bentuk lain, baik dalam bahasa maupun ide kompleks.", "profesi_yang_cocok": [ "Penerjemah", "Editor", "Konsultan komunikasi" ], "perilaku": "Analitis, komunikatif, mampu menjembatani antara konsep abstrak dan pemahaman orang lain." }, "Journalist": { "deskripsi": "Peran yang menyampaikan ide dan informasi secara terstruktur dan menarik.", "profesi_yang_cocok": [ "Penulis", "Wartawan", "Editor" ], "perilaku": "Pandai menulis dan mengolah kata, mampu menyusun informasi secara logis dan mudah dipahami." }, "Marketer": { "deskripsi": "Peran strategis yang merancang dan menjalankan rencana untuk mempromosikan produk atau jasa.", "profesi_yang_cocok": [ "Marketer", "Spesialis PR", "Pengembang bisnis" ], "perilaku": "Kreatif, penuh strategi, senang mengamati tren dan mencari cara menarik perhatian publik." }, "Mediator": { "deskripsi": "Peran yang fokus menyelesaikan konflik antar pihak dengan negosiasi dan pendekatan damai.", "profesi_yang_cocok": [ "Mediator", "Diplomat", "HR" ], "perilaku": "Pendamai, mendengarkan dengan empati, menyukai harmoni, berusaha menghindari konflik terbuka." }, "Motivator": { "deskripsi": "Peran yang menginspirasi dan mendorong individu atau tim untuk meraih potensi terbaik mereka.", "profesi_yang_cocok": [ "Pelatih", "Pembicara motivasi", "Manajer tim" ], "perilaku": "Optimistis, antusias, memotivasi orang lain dengan dorongan positif atau tantangan strategis." }, "Operator": { "deskripsi": "Peran praktis yang mengoperasikan dan memelihara mesin atau sistem dengan teliti.", "profesi_yang_cocok": [ "Teknisi", "Mekanik", "Operator mesin" ], "perilaku": "Disiplin, presisi tinggi, suka bekerja dengan tangan dan memastikan sistem berjalan lancar." }, "Producer": { "deskripsi": "Peran yang terlibat langsung dalam pembuatan dan perakitan produk secara sistematis.", "profesi_yang_cocok": [ "Montir", "Perakit", "Staf produksi" ], "perilaku": "Pekerja keras, fokus pada hasil nyata, berorientasi tindakan dan hasil akhir." }, "Quality Controller": { "deskripsi": "Peran yang memastikan produk memenuhi standar kualitas tinggi dari segi fungsi dan estetika.", "profesi_yang_cocok": [ "Pengawas kualitas", "Finisher", "Inspektur" ], "perilaku": "Perfeksionis, hati-hati, berfokus pada kesempurnaan dan konsistensi." }, "Restorer": { "deskripsi": "Peran yang memperbaiki dan mengembalikan sistem, benda, atau individu ke kondisi optimal.", "profesi_yang_cocok": [ "Psikolog", "Dokter rehabilitasi", "Teknisi perbaikan" ], "perilaku": "Suka memperbaiki, sabar, menikmati proses memulihkan sesuatu yang rusak menjadi berfungsi kembali." }, "Safekeeper": { "deskripsi": "Peran yang menjaga orang dan aset dari bahaya atau kerugian.", "profesi_yang_cocok": [ "Petugas keamanan", "Investigator", "Auditor risiko" ], "perilaku": "Waspada, berhati-hati, penuh tanggung jawab; sering menjadi pengingat aturan atau penjaga moral." }, "Seller": { "deskripsi": "Peran persuasif yang mendorong orang untuk membeli produk atau jasa.", "profesi_yang_cocok": [ "Sales", "Promotor", "Customer relations" ], "perilaku": "Suka berbicara, persuasif, energik, senang berinteraksi dan meyakinkan orang lain." }, "Server": { "deskripsi": "Peran pelayanan yang mengutamakan kebutuhan orang lain.", "profesi_yang_cocok": [ "Customer service", "Sales account", "Service engineer" ], "perilaku": "Mendahulukan orang lain, suka membantu, sabar, senang memberi layanan terbaik." }, "Selector": { "deskripsi": "Peran yang memilih orang yang tepat untuk posisi atau peran tertentu.", "profesi_yang_cocok": [ "HR", "Rekruter", "Direktur casting" ], "perilaku": "Punya intuisi tajam terhadap potensi orang lain, teliti dalam memilih anggota tim." }, "Strategist": { "deskripsi": "Peran yang berpikir ke depan dan menyusun rencana jangka panjang.", "profesi_yang_cocok": [ "Perencana strategi", "Pemimpin visi", "Konsultan bisnis" ], "perilaku": "Visioner, berpikir besar, mempertimbangkan dampak jangka panjang dalam pengambilan keputusan." }, "Synthesizer": { "deskripsi": "Peran yang menggabungkan elemen atau ide menjadi satu kesatuan baru.", "profesi_yang_cocok": [ "Riset dan pengembangan", "Marketing", "Perancang strategi" ], "perilaku": "Melihat pola, menyambung ide dari berbagai sumber, kreatif dalam membuat konsep baru." }, "Treasurer": { "deskripsi": "Peran yang mengelola catatan keuangan secara tepat dan akurat.", "profesi_yang_cocok": [ "Akuntan", "Bendahara", "Kasir" ], "perilaku": "Terorganisir, berhati-hati, suka angka dan menjaga akurasi keuangan tim." }, "Visionary": { "deskripsi": "Peran yang membayangkan masa depan dan menentukan arah jangka panjang.", "profesi_yang_cocok": [ "Pemimpin transformasional", "CEO", "Inovator" ], "perilaku": "Berorientasi masa depan, sering berimajinasi tentang kemungkinan besar, menginspirasi orang lain melalui visi mereka." } };
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            currentStage: 0,
+            allJobs: Object.keys(jobData),
+            availableJobs: [],
+            skippedJobs: [],
+            currentJob: null,
+            usedDescriptions: {}, // { "JobTitle": [used_indices] }
+            selections: {
+                stage1: [], stage2: [], stage3: [], stage4: []
+            },
+            minPicks: 5,
+            maxPicks: 7,
+        };
+
+        // --- DOM ELEMENTS ---
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const stageTransitionScreen = document.getElementById('stage-transition-screen');
+        const modalScreen = document.getElementById('modal-screen');
+        
+        const startBtn = document.getElementById('start-btn');
+        const continueBtn = document.getElementById('continue-btn');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        const stageInfo = document.getElementById('stage-info');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const modalText = document.getElementById('modal-text');
+
+        const jobTitleEl = document.getElementById('job-title');
+        const jobDescriptionEl = document.getElementById('job-description');
+
+        const mainActions = document.getElementById('main-actions');
+        const selectBtn = document.getElementById('select-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        
+        const hateActions = document.getElementById('hate-actions');
+        const hateBtn = document.getElementById('hate-btn');
+        const skipHateBtn = document.getElementById('skip-hate-btn');
+        const finishStageBtn = document.getElementById('finish-stage-btn');
+
+
+        // --- UTILITY FUNCTIONS ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showScreen(screen) {
+            welcomeScreen.classList.add('hidden');
+            questionScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            stageTransitionScreen.classList.add('hidden');
+            screen.classList.remove('hidden');
+        }
+        
+        function showModal(message) {
+            modalText.textContent = message;
+            modalScreen.classList.remove('hidden');
+        }
+
+        // --- CORE LOGIC ---
+        function setupStage() {
+            state.skippedJobs = [];
+            let excludedJobs = [];
+            
+            switch (state.currentStage) {
+                case 1: excludedJobs = []; break;
+                case 2: excludedJobs = [...state.selections.stage1]; break;
+                case 3: excludedJobs = [...state.selections.stage1, ...state.selections.stage2]; break;
+                case 4: excludedJobs = [...state.selections.stage1, ...state.selections.stage2, ...state.selections.stage3]; break;
+            }
+            state.availableJobs = state.allJobs.filter(job => !excludedJobs.includes(job));
+
+            shuffleArray(state.availableJobs);
+            updateUIForStage();
+            displayNextJob();
+        }
+
+        function updateUIForStage() {
+            const stageKey = `stage${state.currentStage}`;
+            const picks = state.selections[stageKey];
+            const isHateStage = state.currentStage === 2 || state.currentStage === 4;
+
+            const stageTexts = {
+                1: `STAGE 1: Pick 5-7 jobs you really want.`,
+                2: `STAGE 2: Pick 5-7 jobs you really hate.`,
+                3: `STAGE 3: Pick 5-7 jobs you somewhat like.`,
+                4: `STAGE 4: Pick 5-7 jobs you want to avoid.`
+            };
+            stageInfo.textContent = stageTexts[state.currentStage];
+
+            mainActions.classList.toggle('hidden', isHateStage);
+            hateActions.classList.toggle('hidden', !isHateStage);
+
+            const progress = (picks.length / state.maxPicks) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${picks.length} / ${state.maxPicks} selected`;
+            
+            finishStageBtn.classList.toggle('hidden', picks.length < state.minPicks);
+        }
+
+        function displayNextJob() {
+            if (state.availableJobs.length === 0) {
+                if (state.skippedJobs.length > 0) {
+                    state.availableJobs = [...state.skippedJobs];
+                    state.skippedJobs = [];
+                    shuffleArray(state.availableJobs);
+                } else {
+                    advanceStage();
+                    return;
+                }
+            }
+
+            state.currentJob = state.availableJobs.shift();
+            
+            if (!state.usedDescriptions[state.currentJob]) {
+                state.usedDescriptions[state.currentJob] = [];
+            }
+            
+            let availableDescs = jobData[state.currentJob].map((_, i) => i).filter(i => !state.usedDescriptions[state.currentJob].includes(i));
+            
+            if(availableDescs.length === 0){
+                state.usedDescriptions[state.currentJob] = [];
+                availableDescs = jobData[state.currentJob].map((_, i) => i);
+            }
+
+            const descIndex = availableDescs[Math.floor(Math.random() * availableDescs.length)];
+            state.usedDescriptions[state.currentJob].push(descIndex);
+            
+            jobDescriptionEl.textContent = jobData[state.currentJob][descIndex];
+        }
+
+        function handleSelection(isHate = false) {
+            const stageKey = `stage${state.currentStage}`;
+            if(state.selections[stageKey].includes(state.currentJob)) {
+                 displayNextJob();
+                 return;
+            }
+            
+            state.selections[stageKey].push(state.currentJob);
+            updateUIForStage();
+
+            if (state.selections[stageKey].length >= state.maxPicks) {
+                advanceStage();
+            } else {
+                displayNextJob();
+            }
+        }
+        
+        function handleSkip() {
+            state.skippedJobs.push(state.currentJob);
+            displayNextJob();
+        }
+
+        function advanceStage() {
+            const stageKey = `stage${state.currentStage}`;
+            const currentPicks = state.selections[stageKey];
+
+            if (currentPicks.length < state.minPicks) {
+                showModal(`You must select at least ${state.minPicks} jobs to proceed.`);
+                return;
+            }
+
+            state.currentStage++;
+            
+            const transitions = {
+                2: { title: "Terima kasih...", text: "Pilihanmu sudah kami terima dan sedang diproses. Kami akan segera mengabari apakah pekerjaan impianmu tersedia.\n\nNamun, sebelum kau pergi... Ada satu hal terakhir yang ingin kutanyakan.\n\nSetiap orang tentu punya batas. Ada jenis pekerjaan tertentu yang membuat kita... muak, enggan, bahkan tertekan.\n\nKatakan padaku... Pekerjaan apa yang sangat tidak kau sukai? Ini akan kami catat. Jika ternyat pekerjaan impianmu tak tersedia, setidaknya kami tidak menempatkanmu pada posisi yang membuatmu menderita." },
+                3: { title: "Beberapa minggu kemudian...", text: "Halo! Ada dua kabar untukmu: satu baik, dan satu... yah, kurang baik. \n\nKabar buruknya dulu, ya... Kau gagal mendapatkan pekerjaan impianmu. Kuotanya sudah penuh...\n\nTapi tenang — ada kabar baik juga. Setidaknya... kami tidak menempatkanmu di pekerjaan yang kamu benci. Kami sudah mengutak-atik sistem sedikit supaya kamu tidak menderita. Anggap saja itu... bentuk empati kecil dari kami.\n\nNah, karena kamu berada di “zona tengah” sekarang, kami butuh satu hal lagi darimu. \n\nTolong pilih lagi 5 hingga 7 deskripsi pekerjaan yang menurutmu... 'yah, lumayan cocok'.\n\nMungkin bukan yang paling kau cintai — tapi setidaknya... kamu bisa menjalaninya tanpa mengeluh setiap hari." },
+                4: { title: "Pertanyaan terakhir..", text: "Kami tahu... kamu sudah pernah memilih pekerjaan yang kamu benci di awal. Tapi situasi bisa berubah, kan? Mungkin kamu mulai sadar : “Oh... pekerjaan itu ternyata lebih buruk dari yang kupikir...” \n\n Baru saja kamu sudah memilih pekerjaan yang menurutmu… yah, lumayan cocok. Bukan cinta sejati, tapi juga bukan neraka dunia. \n\n Nah, sekarang kita balik sedikit. Tolong pilih 5 hingga 7 deskripsi pekerjaan yang menurutmu... 'yah, aku nggak suka sih — tapi nggak sampai pengen kabur juga.' Pekerjaan yang kamu benci. Tapi ya... nggak terlalu benci. Yang masih bisa kamu kerjakan kalau memang kepepet banget.\n\n" },
+            };
+            
+            if (transitions[state.currentStage]) {
+                const { title, text } = transitions[state.currentStage];
+                document.getElementById('transition-title').textContent = title;
+                document.getElementById('transition-text').textContent = text;
+                showScreen(stageTransitionScreen);
+            } else {
+                showResults();
+            }
+        }
+        
+        function showResults() {
+            showScreen(resultsScreen);
+
+            const allPickedJobs = new Set([ ...state.selections.stage1, ...state.selections.stage2, ...state.selections.stage3, ...state.selections.stage4 ]);
+            const unpickedJobs = state.allJobs.filter(job => !allPickedJobs.has(job));
+
+            const createResultSection = (title, category, jobs) => {
+                const container = document.getElementById(`results-${category}`);
+                if (!jobs || jobs.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                let jobListHTML;
+
+                if (category === 'unpicked') {
+                    // Use a simple list for unpicked jobs
+                    jobListHTML = jobs.map(job => `<li class="inline-block bg-gray-200 text-gray-700 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">${job}</li>`).join('');
+                     container.innerHTML = `<div><h3 class="text-xl font-semibold text-gray-700 mb-3 border-b pb-2">${title}</h3><ul class="list-none p-0">${jobListHTML}</ul></div>`;
+                } else {
+                    // Use the detailed card layout for picked jobs
+                    jobListHTML = jobs.map(job => {
+                        const details = jobDetailsData[job];
+                        if (!details) return ''; // Skip if no details found
+
+                        return `
+                            <li class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <h4 class="text-lg font-bold text-gray-900">${job}</h4>
+                                <p class="mt-1 text-gray-700">${details.deskripsi}</p>
+                                <div class="mt-3">
+                                    <p class="font-semibold text-sm text-gray-800">Contoh Profesi:</p>
+                                    <p class="text-sm text-gray-600">${details.profesi_yang_cocok.join(', ')}</p>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="font-semibold text-sm text-gray-800">Perilaku Khas:</p>
+                                    <p class="text-sm text-gray-600">${details.perilaku}</p>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+                     container.innerHTML = `<div><h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">${title}</h3><ul class="space-y-4 list-none p-0">${jobListHTML}</ul></div>`;
+                }
+            };
+
+            createResultSection('⭐ Sangat Cocok', 'stage1', state.selections.stage1);
+            createResultSection('👍 Cocok', 'stage3', state.selections.stage3);
+            createResultSection('👎 Tidak Cocok', 'stage4', state.selections.stage4);
+            createResultSection('🚫 Sangat Tidak Cocok', 'stage2', state.selections.stage2);
+            createResultSection('📊 No Data', 'unpicked', unpickedJobs);
+        }
+
+        // --- EVENT LISTENERS ---
+        startBtn.addEventListener('click', () => {
+            state.currentStage = 1;
+            showScreen(questionScreen);
+            setupStage();
+        });
+
+        continueBtn.addEventListener('click', () => {
+             showScreen(questionScreen);
+             setupStage();
+        });
+        
+        modalCloseBtn.addEventListener('click', () => {
+            modalScreen.classList.add('hidden');
+        });
+
+        selectBtn.addEventListener('click', () => handleSelection(false));
+        hateBtn.addEventListener('click', () => handleSelection(true));
+
+        skipBtn.addEventListener('click', handleSkip);
+        skipHateBtn.addEventListener('click', handleSkip);
+
+        finishStageBtn.addEventListener('click', advanceStage);
+
+    </script>
+</body>
+</html>
